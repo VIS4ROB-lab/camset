@@ -110,40 +110,46 @@ class Window(Gtk.Window):
             elif line == "Camera Controls":
                 continue
             elif "0x" in line:
-                setting = line.split('0x', 1)[0].strip()
-                label_text = str.replace(setting, '_', ' ').title()
-                value = line.split("value=", 1)[1]
-                value = int(value.split(' ', 1)[0])
-                label = Gtk.Label(hexpand = True, vexpand = False)
-                label.set_text(label_text)
-                label.set_size_request(-1, 35)
-                label.set_halign(Gtk.Align.END)
-                
-                if "int" in line:
-                    self.layout.add_int_item(line, setting, value, v4l2_control.set_int_value)  
-                    self.int_label_box.pack_start(label, False, False, 0)                  
-                        
-                if "bool" in line: 
-                    self.layout.add_bool_item(setting, value, v4l2_control.set_bool_value)               
-                    label.set_size_request(-1, 25)
-                    self.bool_label_box.pack_start(label, False, False, 0)
-                
-                if "menu" in line:
-                    menu_value = value
-                    self.layout.add_menu_item(setting, v4l2_control.on_ctrl_combo_changed)
-                    self.menu_label_box.pack_start(label, False, False, 0)
+                try:
+                    setting = line.split('0x', 1)[0].strip()
+                    label_text = str.replace(setting, '_', ' ').title()
+                    value = line.split("value=", 1)[1]
+                    value = int(value.split(' ', 1)[0])
+                    label = Gtk.Label(hexpand = True, vexpand = False)
+                    label.set_text(label_text)
+                    label.set_size_request(-1, 35)
+                    label.set_halign(Gtk.Align.END)
+                    
+                    if "int" in line:
+                        self.layout.add_int_item(line, setting, value, v4l2_control.set_int_value)  
+                        self.int_label_box.pack_start(label, False, False, 0)                  
+                            
+                    if "bool" in line: 
+                        self.layout.add_bool_item(setting, value, v4l2_control.set_bool_value)               
+                        label.set_size_request(-1, 25)
+                        self.bool_label_box.pack_start(label, False, False, 0)
+                    
+                    if "menu" in line:
+                        menu_value = value
+                        self.layout.add_menu_item(setting, v4l2_control.on_ctrl_combo_changed)
+                        self.menu_label_box.pack_start(label, False, False, 0)
+                except:
+                    pass
             
             # menu options
             elif line:
-                # map index to value
-                value = int(line.split(": ", 1)[0]) # get value from text because index is not (always) same as value
-                self.ctrl_store.append ([line])
-                # count index, set active
-                index = 0
-                for item in self.ctrl_store:
-                    index += 1
-                if value == menu_value:
-                    self.ctrl_combobox.set_active(index - 1)
+                try:
+                    # map index to value
+                    value = int(line.split(": ", 1)[0]) # get value from text because index is not (always) same as value
+                    self.ctrl_store.append ([line])
+                    # count index, set active
+                    index = 0
+                    for item in self.ctrl_store:
+                        index += 1
+                    if value == menu_value:
+                        self.ctrl_combobox.set_active(index - 1)
+                except:
+                    pass
                     
     def check_devices(self):
         devices = subprocess.run(['v4l2-ctl', '--list-devices'], check=False, universal_newlines=True, stdout=subprocess.PIPE)
